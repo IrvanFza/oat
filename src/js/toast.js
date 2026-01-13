@@ -26,7 +26,7 @@ class LTToast extends LTBase {
 
   init() {
     this.#duration = parseInt(this.getAttribute('duration') || '5000', 10);
-    this.classList.add('animate-pop-up');
+    this.classList.add('animate-slide-in');
 
     // Close button
     this.$$('[data-close]').forEach(el => {
@@ -70,7 +70,7 @@ class LTToast extends LTBase {
 
   close() {
     this.#clearTimeout();
-    this.setAttribute('data-state', 'closed');
+    this.setAttribute('data-state', 'closing');
     this.removeAttribute('visible');
     this.emit('lt-toast-close');
 
@@ -81,7 +81,7 @@ class LTToast extends LTBase {
       } else {
         this.hidden = true;
       }
-    }, 200);
+    }, 150);
   }
 
   #clearTimeout() {
