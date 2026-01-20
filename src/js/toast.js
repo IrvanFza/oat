@@ -1,146 +1,151 @@
 /**
- * lmui - Toast Component
- * Auto-dismissing notifications.
+ * lmui - Toast Notifications
  *
  * Usage:
- * <lm-toast-container></lm-toast-container>
+ *   lm.toast('Saved!')
+ *   lm.toast('Saved!', 'Your changes have been saved.')
+ *   lm.toast('Success', 'Operation completed.', { variant: 'success' })
+ *   lm.toast('Error', 'Something went wrong.', { variant: 'danger', placement: 'bottom-center' })
  *
- * // Programmatic:
- * const container = document.querySelector('lm-toast-container');
- * container.show({ message: 'Saved!', variant: 'success' });
- *
- * // Or declarative:
- * <lm-toast visible duration="5000">
- *   <span>Message here</span>
- *   <button data-close>×</button>
- * </lm-toast>
+ *   // Custom markup
+ *   lm.toastEl(element)
+ *   lm.toastEl(element, { duration: 5000, placement: 'bottom-center' })
+ *   lm.toastEl(document.querySelector('#my-template'))
  */
 
-class LMToast extends LMBase {
-  #duration = 5000;
-  #timeout = null;
+const lm = window.lm || (window.lm = {});
 
-  static get observedAttributes() {
-    return ['duration', 'visible'];
+const containers = {};
+const DEFAULT_DURATION = 4000;
+const DEFAULT_PLACEMENT = 'top-right';
+
+function getContainer(placement) {
+  if (!containers[placement]) {
+    const el = document.createElement('div');
+    el.className = 'toast-container';
+    el.setAttribute('popover', 'manual');
+    el.setAttribute('data-placement', placement);
+    document.body.appendChild(el);
+    containers[placement] = el;
   }
+  return containers[placement];
+}
 
-  init() {
-    this.#duration = parseInt(this.getAttribute('duration') || '5000', 10);
-    this.classList.add('animate-slide-in');
+function show(toast, options = {}) {
+  const { placement = DEFAULT_PLACEMENT, duration = DEFAULT_DURATION } = options;
+  const container = getContainer(placement);
 
-    // Close button
-    this.$$('[data-close]').forEach(el => {
-      el.addEventListener('click', this);
+  toast.classList.add('toast');
+
+  let timeout;
+
+  // Pause on hover.
+  toast.onmouseenter = () => clearTimeout(timeout);
+  toast.onmouseleave = () => {
+    if (duration > 0) {
+      timeout = setTimeout(() => removeToast(toast, container), duration);
+    }
+  };
+
+  // Show with animation.
+  toast.setAttribute('data-entering', '');
+  container.appendChild(toast);
+  container.showPopover();
+
+  // Double RAF to compute styles before transition starts.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toast.removeAttribute('data-entering');
     });
+  });
 
-    // Show if visible
-    if (this.hasAttribute('visible')) {
-      this.show();
-    }
+  if (duration > 0) {
+    timeout = setTimeout(() => removeToast(toast, container), duration);
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    switch (name) {
-      case 'visible':
-        newValue !== null ? this.show() : this.close();
-        break;
-      case 'duration':
-        this.#duration = parseInt(newValue || '5000', 10);
-        break;
-    }
-  }
-
-  onclick(event) {
-    if (event.target.closest('[data-close]')) {
-      this.close();
-    }
-  }
-
-  show() {
-    this.setAttribute('data-state', 'open');
-    this.hidden = false;
-    this.emit('lm-toast-open');
-
-    // Auto-dismiss
-    if (this.#duration > 0) {
-      this.#clearTimeout();
-      this.#timeout = setTimeout(() => this.close(), this.#duration);
-    }
-  }
-
-  close() {
-    this.#clearTimeout();
-    this.setAttribute('data-state', 'closing');
-    this.removeAttribute('visible');
-    this.emit('lm-toast-close');
-
-    // Remove from DOM after animation
-    setTimeout(() => {
-      if (this.parentElement?.tagName === 'LM-TOAST-CONTAINER') {
-        this.remove();
-      } else {
-        this.hidden = true;
-      }
-    }, 150);
-  }
-
-  #clearTimeout() {
-    if (this.#timeout) {
-      clearTimeout(this.#timeout);
-      this.#timeout = null;
-    }
-  }
-
-  cleanup() {
-    this.#clearTimeout();
-  }
+  return toast;
 }
 
-customElements.define('lm-toast', LMToast);
+// Simple text toast.
+lm.toast = function (message, title, options = {}) {
+  if (typeof message === 'object' && message !== null) {
+    options = message;
+    message = '';
+  }
 
+  const { variant = '', ...rest } = options;
 
-/**
- * Toast Container - Manages multiple toasts
- */
-class LMToastContainer extends LMBase {
-  /**
-   * Show a toast notification.
-   * @param {Object} options
-   * @param {string} options.message - Toast message
-   * @param {string} [options.variant] - 'success' | 'error' | 'warning'
-   * @param {number} [options.duration] - Duration in ms (0 = no auto-dismiss)
-   * @returns {LMToast}
-   */
-  show({ message, variant = '', duration = 5000 }) {
-    const toast = document.createElement('lm-toast');
-    toast.setAttribute('duration', String(duration));
-    if (variant) {
-      toast.setAttribute('data-variant', variant);
+  // Create toast
+  const toast = document.createElement('output');
+  toast.className = 'toast';
+  toast.setAttribute('role', 'status');
+  if (variant) toast.setAttribute('data-variant', variant);
+
+  const titleText = title || (variant[0].toUpperCase() + variant.slice(1));
+  const titleEl = document.createElement('h6');
+  titleEl.className = 'toast-title';
+  if (variant) {
+    titleEl.style.color = `var(--lm-${variant})`;
+  }
+  titleEl.textContent = title || titleText;
+  toast.appendChild(titleEl);
+
+  if (message) {
+    const msgEl = document.createElement('div');
+    msgEl.className = 'toast-message';
+    msgEl.textContent = message;
+    toast.appendChild(msgEl);
+  }
+
+  return show(toast, rest);
+};
+
+// Element-based toast.
+lm.toastEl = function (el, options = {}) {
+  let toast;
+
+  if (el instanceof HTMLTemplateElement) {
+    toast = el.content.firstElementChild.cloneNode(true);
+  } else {
+    toast = el.cloneNode(true);
+  }
+
+  toast.removeAttribute('id');
+
+  return show(toast, options);
+};
+
+function removeToast(toast, container) {
+  if (toast.hasAttribute('data-exiting')) {
+    return;
+  }
+  toast.setAttribute('data-exiting', '');
+
+  let done = false;
+  const cleanup = () => {
+    if (done) {
+      return;
     }
+    done = true;
+    toast.remove();
+    if (!container.children.length) {
+      container.hidePopover();
+    }
+  };
 
-    toast.innerHTML = `
-      <span>${message}</span>
-      <button data-close aria-label="Close" style="background:none;border:none;cursor:pointer;padding:0;margin-left:auto;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6L6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    `;
-
-    this.appendChild(toast);
-
-    // Trigger show after append
-    requestAnimationFrame(() => toast.show());
-
-    return toast;
-  }
-
-  /**
-   * Close all toasts.
-   */
-  clear() {
-    this.$$('lm-toast').forEach(toast => toast.close());
-  }
+  toast.addEventListener('transitionend', cleanup, { once: true });
+  setTimeout(cleanup, 200);
 }
 
-customElements.define('lm-toast-container', LMToastContainer);
+// Clear all toasts.
+lm.toast.clear = function (placement) {
+  if (placement && containers[placement]) {
+    containers[placement].innerHTML = '';
+    containers[placement].hidePopover();
+  } else {
+    Object.values(containers).forEach(c => {
+      c.innerHTML = '';
+      c.hidePopover();
+    });
+  }
+};

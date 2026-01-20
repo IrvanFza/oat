@@ -1,10 +1,15 @@
 @layer base {
-  body {
+  /* Top-layer elements don't inherit from body. Set explicitly. */
+  body, dialog, [popover] {
     font-family: var(--lm-font-sans);
     font-size: var(--lm-text-regular);
     line-height: var(--lm-leading-normal);
     color: var(--lm-foreground);
+  }
+
+  body {
     background-color: var(--lm-background);
+    color: var(--lm-foreground);
   }
 
   h1, h2, h3, h4, h5, h6 {
