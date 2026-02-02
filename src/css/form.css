@@ -3,20 +3,8 @@
     display: block;
     font-size: var(--text-7);
     font-weight: var(--font-medium);
-    margin-bottom: var(--space-2);
 
-    &:has(input:not([type=checkbox], [type=radio])),
-    &:has(textarea),
-    &:has(select) {
-      margin-bottom: var(--space-4);
-
-      input, textarea, select {
-        margin-top: var(--space-2);
-      }
-    }
-
-    &:has(input[type="checkbox"]),
-    &:has(input[type="radio"]) {
+    &:has(input:where([type=checkbox], [type=radio])) {
       display: inline-flex;
       align-items: center;
       gap: var(--space-2);
@@ -24,13 +12,10 @@
     }
   }
 
-  input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=color]),
-  textarea,
-  select {
-    display: block;
+  :where(input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=color]), textarea, select) {
     width: 100%;
-    height: 2.5rem;
-    padding: 0 var(--space-3);
+    margin-top: var(--space-1);
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-7);
     line-height: var(--leading-normal);
     background-color: var(--background);
@@ -53,7 +38,7 @@
       background-color: var(--muted);
     }
 
-    &[aria-invalid="true"], &:user-invalid {
+    &:is([aria-invalid=true], :user-invalid) {
       border-color: var(--danger);
 
       &:focus {
@@ -73,11 +58,11 @@
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right var(--space-3) center;
-    padding-right: var(--space-10);
+    background-position: right var(--space-2) center;
+    padding-right: var(--space-6);
   }
 
-  input[type="checkbox"], input[type="radio"] {
+  input:where([type=checkbox], [type=radio]) {
     appearance: none;
     width: 1rem;
     height: 1rem;
@@ -94,16 +79,51 @@
     }
   }
 
-  input[type="checkbox"] {
+  input[type=checkbox] {
     border-radius: var(--radius-small);
 
     &:checked {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
       background-size: 0.75rem;
     }
+
+    &[role=switch] {
+      --switch-height: calc(var(--bar-height) * 3);
+      --switch-inset: 2px;
+      --switch-thumb: calc(var(--switch-height) - var(--switch-inset) * 3);
+
+      width: calc(var(--switch-height) * 2);
+      height: var(--switch-height);
+      border-radius: var(--radius-full);
+      background-color: var(--input);
+      position: relative;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: var(--switch-inset);
+        transform: translateY(-50%);
+        width: var(--switch-thumb);
+        height: var(--switch-thumb);
+        background-color: var(--background);
+        border-radius: var(--radius-full);
+        transition: transform var(--transition);
+        box-shadow: var(--shadow-small);
+      }
+
+      &:checked {
+        background-color: var(--primary);
+        background-image: none;
+
+        &::before {
+          transform: translateY(-50%) translateX(var(--switch-height));
+        }
+      }
+    }
   }
 
-  input[type="radio"] {
+  input[type=radio] {
     border-radius: var(--radius-full);
 
     &:checked {
@@ -112,48 +132,12 @@
     }
   }
 
-  input[type="checkbox"][role="switch"] {
-    --_switch-height: calc(var(--bar-height) * 3);
-    --_switch-inset: 2px;
-    --_switch-thumb: calc(var(--_switch-height) - var(--_switch-inset) * 3);
-
-    width: calc(var(--_switch-height) * 2);
-    height: var(--_switch-height);
-    border-radius: var(--radius-full);
-    background-color: var(--input);
-    position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: var(--_switch-inset);
-      transform: translateY(-50%);
-      width: var(--_switch-thumb);
-      height: var(--_switch-thumb);
-      background-color: var(--background);
-      border-radius: var(--radius-full);
-      transition: transform var(--transition);
-      box-shadow: var(--shadow-small);
-    }
-
-    &:checked {
-      background-color: var(--primary);
-      background-image: none;
-
-      &::before {
-        transform: translateY(-50%) translateX(calc(var(--_switch-height) * 1));
-      }
-    }
-  }
-
-  :is(input[type=checkbox], input[type=radio], input[type=range], select):not(:disabled),
-  label:has(input:is([type=checkbox], [type=radio]):not(:disabled)) {
+  :where(input:where([type=checkbox], [type=radio], [type=range]), select):not(:disabled),
+  label:has(input:where([type=checkbox], [type=radio]):not(:disabled)) {
     cursor: pointer;
   }
 
-
-  input[type="range"] {
+  input[type=range] {
     width: 100%;
     height: var(--bar-height);
     appearance: none;
@@ -204,81 +188,57 @@
     padding: 0;
     margin: 0;
 
-    & > input, & > select {
+    & > :is(input, textarea, select) {
       flex: 1;
+      margin-top: 0;
+      border-right: 0;
     }
 
-    & > button {
-      flex: none;
-    }
-
-    & > input,
-    & > select,
-    & > button {
+    & > :is(input, textarea, select, button) {
       border-radius: 0;
-
       &:first-child {
-        border-start-start-radius: var(--radius-medium);
-        border-end-start-radius: var(--radius-medium);
+        border-radius: var(--radius-medium) 0 0 var(--radius-medium);
       }
-
+      
       &:last-child {
-        border-start-end-radius: var(--radius-medium);
-        border-end-end-radius: var(--radius-medium);
+        border-radius: 0 var(--radius-medium) var(--radius-medium) 0;
       }
     }
 
     & > legend {
       float: inline-start;
+      display: inline-flex;
+      align-items: center;
       padding: 0 var(--space-3);
-      height: 2.5rem;
-      line-height: 2.5rem;
+      line-height: var(--leading-normal);
       font-weight: var(--font-normal);
       color: var(--muted-foreground);
       background-color: var(--muted);
       border: 1px solid var(--input);
       border-inline-end: none;
-      border-start-start-radius: var(--radius-medium);
-      border-end-start-radius: var(--radius-medium);
-    }
-
-    & > span, & > .prefix, & > .suffix {
-      display: flex;
-      align-items: center;
-      padding: 0 var(--space-3);
-      font-size: var(--text-7);
-      color: var(--muted-foreground);
-      background-color: var(--muted);
-      border: 1px solid var(--input);
-      border-radius: 0;
-
-      &:first-child {
-        border-inline-end: none;
-        border-start-start-radius: var(--radius-medium);
-        border-end-start-radius: var(--radius-medium);
-      }
-
-      &:last-child {
-        border-inline-start: none;
-        border-start-end-radius: var(--radius-medium);
-        border-end-end-radius: var(--radius-medium);
-      }
+      border-radius: var(--radius-medium) 0 0 var(--radius-medium);
     }
   }
 
-  .field {
+  [data-field] {
     margin-bottom: var(--space-4);
 
-    & > label {
-      margin-bottom: var(--space-2);
-    }
-
-    & > :is(.error, [data-error], .hint, [data-hint]) {
-      font-size: var(--text-7);
+    /* Hint text that succeeds an input with aria-describedby */
+    [data-hint], .error {
+      font-size: var(--text-8);
+      font-weight: var(--font-normal);
+      color: var(--muted-foreground);
       margin-top: var(--space-1);
     }
 
-    & > :is(.error, [data-error]) { color: var(--danger); }
-    & > :is(.hint, [data-hint]) { color: var(--muted-foreground); }
+    .error {
+      display: none;
+    }
+
+    /* Reveal error on data-field="error" */
+    &[data-field="error"] .error {
+      display: block;
+      color: var(--danger);
+    }
   }
 }

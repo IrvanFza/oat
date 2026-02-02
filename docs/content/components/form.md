@@ -9,60 +9,71 @@ Form elements are styled automatically. Wrap inputs in `<label>` for proper asso
 {% demo() %}
 ```html
 <form>
-  <label>
+  <label data-field>
     Name
-    <input type="text" placeholder="Enter your name">
+    <input type="text" placeholder="Enter your name" />
   </label>
 
-  <label>
+  <label data-field>
     Email
-    <input type="email" placeholder="you@example.com">
+    <input type="email" placeholder="you@example.com" />
   </label>
 
-  <label>
+  <label data-field>
     Password
-    <input type="password" placeholder="Password">
+    <input type="password" placeholder="Password" aria-describedby="password-hint" />
+    <small id="password-hint" data-hint>This is a small hint</small>
   </label>
 
-  <label>
-    Country
+  <div data-field>
+    <label>Country</label>
     <select>
       <option value="">Select a country</option>
       <option value="us">United States</option>
       <option value="uk">United Kingdom</option>
       <option value="ca">Canada</option>
     </select>
-  </label>
+  </div>
 
-  <label>
+  <label data-field>
     Message
     <textarea placeholder="Your message..."></textarea>
   </label>
 
-  <label>
+  <label data-field>
+    Disabled
+    <input type="text" placeholder="Disabled" disabled />
+  </label>
+
+  <label data-field>
+    File
+    <input type="file" placeholder="Pick a file..." />
+  </label>
+
+  <label data-field>
     Date and time
     <input type="datetime-local" />
   </label>
 
-  <label>
+  <label data-field>
     Date
     <input type="date" />
   </label>
 
-  <label>
-    <input type="checkbox"> I agree to the terms
+  <label data-field>
+    <input type="checkbox" /> I agree to the terms
   </label>
 
-  <fieldset>
+  <fieldset class="hstack">
     <legend>Preference</legend>
-    <label><input type="radio" name="pref"> Option A</label>
-    <label><input type="radio" name="pref"> Option B</label>
-    <label><input type="radio" name="pref"> Option C</label>
+    <label><input type="radio" name="pref">OptionA</label>
+    <label><input type="radio" name="pref">Option B</label>
+    <label><input type="radio" name="pref">Option C</label>
   </fieldset>
 
-  <label>
+  <label data-field>
     Volume
-    <input type="range" min="0" max="100" value="50">
+    <input type="range" min="0" max="100" value="50" />
   </label>
 
   <button type="submit">Submit</button>
@@ -79,7 +90,16 @@ Use `.group` on a `<fieldset>` to combine inputs with buttons or labels.
 ```html
 <fieldset class="group">
   <legend>https://</legend>
-  <input type="url" placeholder="example.com">
+  <input type="url" placeholder="Subdomain">
+  <select placeholder="Select">
+    <option>.example.com</option>
+    <option>.example.net</option>
+  </select>
+  <button>Go</button>
+</fieldset>
+
+<fieldset class="group">
+  <input type="text" placeholder="Search" />
   <button>Go</button>
 </fieldset>
 ```
@@ -87,14 +107,15 @@ Use `.group` on a `<fieldset>` to combine inputs with buttons or labels.
 
 ### Validation error
 
-Use `aria-invalid="true"` on inputs and `.error` for the message.
+Use `data-field="error"` on field containers to reveal and style error messages.
 
 {% demo() %}
 ```html
-<div class="field">
+<div data-field="error">
   <label for="error-input">Email</label>
-  <input type="email" id="error-input" value="invalid-email" aria-invalid="true">
-  <div class="error">Please enter a valid email address.</div>
+  <input type="email" aria-invalid="true" aria-errormessage="error-input"
+    id="error-input" value="invalid-email" />
+  <div id="error-message" class="error" role="status">Please enter a valid email address.</div>
 </div>
 ```
 {% end %}

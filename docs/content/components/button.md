@@ -26,7 +26,7 @@ Use `.small` or `.large` for size variants.
 <button class="small">Small</button>
 <button>Default</button>
 <button class="large">Large</button>
-<a href="" class="button">Hyperlink</a>
+<a href="#button" class="button">Hyperlink</a>
 ```
 {% end %}
 
