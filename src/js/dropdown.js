@@ -57,18 +57,8 @@ class OtDropdown extends OtBase {
 
     const items = this.$$('[role="menuitem"]');
     const idx = items.indexOf(e.target);
-    const len = items.length;
-    const next = {
-      ArrowDown: (idx + 1) % len,
-      ArrowUp: (idx - 1 + len) % len,
-      Home: 0,
-      End: len - 1
-    }[e.key];
-
-    if (next != null) {
-      e.preventDefault();
-      items[next].focus();
-    }
+    const next = this.keyNav(e, idx, items.length, 'ArrowUp', 'ArrowDown', true);
+    if (next >= 0) items[next].focus();
   }
 
   cleanup() {

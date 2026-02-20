@@ -55,16 +55,8 @@ class OtTabs extends OtBase {
   }
 
   onkeydown(e) {
-    const idx = this.activeIndex;
-    const len = this.#tabs.length;
-
-    const next = {
-      ArrowLeft: (idx - 1 + len) % len,
-      ArrowRight: (idx + 1) % len
-    }[e.key];
-
-    if (next != null) {
-      e.preventDefault();
+    const next = this.keyNav(e, this.activeIndex, this.#tabs.length, 'ArrowLeft', 'ArrowRight');
+    if (next >= 0) {
       this.#activate(next);
       this.#tabs[next].focus();
     }
