@@ -51,4 +51,10 @@
     text-decoration: none;
     padding: 0;
   }
+  :is(a).unstyled {
+    color: inherit;
+    &:hover {
+      color: var(--primary);
+    }
+  }
 }
