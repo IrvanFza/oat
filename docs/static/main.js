@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach a scroll observer to all sections.
     sections.forEach(s => ob.observe(s));
   }
+
 });
 
 
@@ -150,4 +151,11 @@ function toggleTheme() {
   document.documentElement.style.colorScheme = theme;
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
+}
+
+function tagInputAutoComplete(el) {
+  const fruits = ['Apple', 'Apricot', 'Banana', 'Cherry', 'Mango', 'Melon'];
+  el.list.replaceChildren(...fruits
+    .filter(f => f.toLowerCase().startsWith(el.value.toLowerCase()))
+    .map(v => new Option(v)));
 }

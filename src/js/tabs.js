@@ -20,9 +20,9 @@ class OtTabs extends OtBase {
   #panels = [];
 
   init() {
-    const tablist = this.$(':scope > [role="tablist"]');
+    const tablist = this.querySelector(':scope > [role="tablist"]');
     this.#tabs = tablist ? [...tablist.querySelectorAll('[role="tab"]')] : [];
-    this.#panels = this.$$(':scope > [role="tabpanel"]');
+    this.#panels = [...this.querySelectorAll(':scope > [role="tabpanel"]')];
 
     if (this.#tabs.length === 0 || this.#panels.length === 0) {
       console.warn('ot-tabs: Missing tab or tabpanel elements');
