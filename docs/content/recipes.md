@@ -28,9 +28,9 @@ Use `menu.buttons` for joined controls and `ot-dropdown` for secondary actions.
     </li>
   </menu>
   <menu popover id="save-actions">
-    <button role="menuitem">Save draft</button>
-    <button role="menuitem">Save and publish</button>
-    <button role="menuitem">Duplicate</button>
+    <button role="menuitem" class="ghost">Save draft</button>
+    <button role="menuitem" class="ghost">Save and publish</button>
+    <button role="menuitem" class="ghost">Duplicate</button>
   </menu>
 </ot-dropdown>
 ```
