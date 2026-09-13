@@ -89,6 +89,7 @@ Form elements are styled automatically. Wrap inputs in `<label>` for proper asso
   </label>
 
   <button type="submit">Submit</button>
+  <input type="reset" value="Reset" data-variant="secondary" />
 </form>
 ```
 {% </demo> %}

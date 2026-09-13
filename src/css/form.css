@@ -13,7 +13,7 @@
     }
   }
 
-  :where(input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=color]), textarea, select) {
+  :where(input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=color], [type=submit], [type=reset], [type=button]), textarea, select) {
     font-family: var(--font-sans);
     width: 100%;
     margin-block-start: var(--space-1);
@@ -199,7 +199,7 @@
     border: none;
     padding: 0;
 
-    & > :is(input, textarea, select) {
+    & > :is(input:not([type=submit], [type=reset], [type=button]), textarea, select) {
       flex: 1;
       margin-block-start: 0;
      
